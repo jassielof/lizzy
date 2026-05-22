@@ -8,8 +8,16 @@ pub fn addStep(
     b: *std.Build,
     /// The options to configure the lizard step.
     options: Options,
-) *std.Build.Step {
-    const lizard = b.addSystemCommand(options.command);
+) !*std.Build.Step {
+    if (options.command.len == 0) {
+        return error.InvalidCommand;
+    }
+
+    const exe = try b.findProgram(&.{options.command[0]}, &.{});
+
+    const lizard = b.addSystemCommand(&.{exe});
+    if (options.command.len > 1)
+        lizard.addArgs(options.command[1..]);
 
     for (options.languages) |language|
         lizard.addArgs(&.{ "--languages", language });
@@ -121,12 +129,13 @@ fn stringListOption(
     return items[0..item_count];
 }
 
-pub fn build(b: *std.Build) void {
+pub fn build(b: *std.Build) !void {
     const check_step = b.step("check", "Run code quality checks");
     const max_threads = std.Thread.getCpuCount() catch 1;
-    const lizzy_step = addStep(b, .{
-        .command = &.{ "uv", "run", "lizard" },
+    const lizzy_step = try addStep(b, .{
+        .command = &.{ "uvx", "lizard" },
         .paths = &.{},
+        .ccn = 20,
         .working_threads = max_threads,
     });
     check_step.dependOn(lizzy_step);
