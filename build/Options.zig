@@ -23,7 +23,7 @@ step_name: []const u8 = "lizard",
 /// The description of the step.
 step_description: []const u8 = "Run lizard checks.",
 /// Lizard threshold settings. Each item is emitted as a repeated `--Threshold` flag.
-thresholds: []const []const u8 = &.{"max_nested_structures=3"},
+thresholds: []const []const u8 = &.{},
 
 /// Warning mode for Lizard.
 pub const WarningMode = enum {
