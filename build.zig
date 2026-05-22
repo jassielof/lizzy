@@ -10,9 +10,11 @@ pub fn addStep(
     options: Options,
 ) *std.Build.Step {
     const lizard = b.addSystemCommand(&.{options.lizard_path});
+
+    for (options.languages) |language|
+        lizard.addArgs(&.{ "--languages", language });
+
     lizard.addArgs(&.{
-        "--languages",
-        "zig",
         "--CCN",
         b.fmt("{d}", .{options.ccn}),
         "--length",
@@ -29,20 +31,11 @@ pub fn addStep(
         .warnings_msvs => lizard.addArg("--warning-msvs"),
     }
 
-    for (options.extensions) |extension| {
-        lizard.addArg("--extension");
-        lizard.addArg(extension);
-    }
+    for (options.extensions) |extension| lizard.addArgs(&.{ "--extension", extension });
 
-    for (options.thresholds) |threshold| {
-        lizard.addArg("--Threshold");
-        lizard.addArg(threshold);
-    }
+    for (options.thresholds) |threshold| lizard.addArgs(&.{ "--Threshold", threshold });
 
-    for (options.excluded_paths) |path| {
-        lizard.addArg("--exclude");
-        lizard.addArg(path);
-    }
+    for (options.excluded_paths) |path| lizard.addArgs(&.{ "--exclude", path });
 
     lizard.addArgs(options.paths);
 
@@ -68,6 +61,7 @@ pub fn addStepWithBuildOptions(
 fn optionsFromBuild(b: *std.Build, options: Options) Options {
     return .{
         .lizard_path = b.option([]const u8, "lizard-path", "Executable name or path used to invoke lizard") orelse options.lizard_path,
+        .languages = stringListOption(b, "languages", "Comma-separated list of languages to analyze", options.languages),
         .ccn = b.option(usize, "ccn", "Cyclomatic complexity warning threshold") orelse options.ccn,
         .length = b.option(usize, "length", "Function length warning threshold") orelse options.length,
         .arguments = b.option(usize, "arguments", "Argument count warning threshold") orelse options.arguments,
@@ -89,9 +83,11 @@ fn stringListOption(
     default: []const []const u8,
 ) []const []const u8 {
     const value = b.option([]const u8, name, description) orelse return default;
+
     if (value.len == 0) return &.{};
 
     var max_items: usize = 1;
+
     for (value) |c| {
         if (c == ',') max_items += 1;
     }
@@ -99,6 +95,7 @@ fn stringListOption(
     const items = b.allocator.alloc([]const u8, max_items) catch @panic("OOM");
     var item_count: usize = 0;
     var iter = std.mem.splitScalar(u8, value, ',');
+
     while (iter.next()) |raw_item| {
         const item = std.mem.trim(u8, raw_item, " \t\r\n");
         if (item.len == 0) continue;

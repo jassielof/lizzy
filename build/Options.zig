@@ -2,6 +2,8 @@
 
 /// Executable name or path used to invoke lizard.
 lizard_path: []const u8 = "lizard",
+/// The list of languages to analyze, passed as `--languages`. Default is `zig` since that's the important one. One can pass multiple languages as repeated `--languages` flags.
+languages: []const []const u8 = &.{"zig"},
 /// Cyclomatic complexity warning threshold passed as `--CCN`.
 ccn: usize = 10,
 /// Function length warning threshold passed as `--length`.
