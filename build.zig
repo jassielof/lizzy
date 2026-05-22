@@ -123,9 +123,11 @@ fn stringListOption(
 
 pub fn build(b: *std.Build) void {
     const check_step = b.step("check", "Run code quality checks");
+    const max_threads = std.Thread.getCpuCount() catch 1;
     const lizzy_step = addStep(b, .{
         .command = &.{ "uv", "run", "lizard" },
         .paths = &.{},
+        .working_threads = max_threads,
     });
     check_step.dependOn(lizzy_step);
 
