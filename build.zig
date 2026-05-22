@@ -84,16 +84,6 @@ fn stringListOption(
 ) []const []const u8 {
     const value = b.option([]const u8, name, description) orelse return default;
 
-    // if (value) {
-    //     if (value) {
-    //         if (value) {
-    //             if (value) {
-    //                 if (value) {}
-    //             }
-    //         }
-    //     }
-    // }
-
     if (value.len == 0) return &.{};
 
     var max_items: usize = 1;
