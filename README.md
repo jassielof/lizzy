@@ -8,4 +8,4 @@ It's mainly intended to be used as a dependency for Zig projects, specifically f
 
 ## Justification
 
-For further reading on **why** the defaults are the way they are, [check my Notion article](https://jassielof.notion.site/code-quality-and-static-analysis-guidelines-and-tooling/).
+For further reading on **why** the defaults are the way they are, [check my Notion article](https://jassielof.notion.site/code-quality-and-static-analysis-guidelines-and-tooling#3676d84de91080f88deac9cb5aaafbe9).
