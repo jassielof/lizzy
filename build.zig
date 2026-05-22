@@ -9,7 +9,7 @@ pub fn addStep(
     /// The options to configure the lizard step.
     options: Options,
 ) *std.Build.Step {
-    const lizard = b.addSystemCommand(&.{options.lizard_path});
+    const lizard = b.addSystemCommand(options.command);
 
     for (options.languages) |language|
         lizard.addArgs(&.{ "--languages", language });
@@ -60,7 +60,7 @@ pub fn addStepWithBuildOptions(
 
 fn optionsFromBuild(b: *std.Build, options: Options) Options {
     return .{
-        .lizard_path = b.option([]const u8, "lizard-path", "Executable name or path used to invoke lizard") orelse options.lizard_path,
+        .command = b.option([]const u8, "lizard-path", "Executable name or path used to invoke lizard") orelse options.command,
         .languages = stringListOption(b, "languages", "Comma-separated list of languages to analyze", options.languages),
         .ccn = b.option(usize, "ccn", "Cyclomatic complexity warning threshold") orelse options.ccn,
         .length = b.option(usize, "length", "Function length warning threshold") orelse options.length,
@@ -83,6 +83,16 @@ fn stringListOption(
     default: []const []const u8,
 ) []const []const u8 {
     const value = b.option([]const u8, name, description) orelse return default;
+
+    // if (value) {
+    //     if (value) {
+    //         if (value) {
+    //             if (value) {
+    //                 if (value) {}
+    //             }
+    //         }
+    //     }
+    // }
 
     if (value.len == 0) return &.{};
 
@@ -108,5 +118,16 @@ fn stringListOption(
 }
 
 pub fn build(b: *std.Build) void {
-    _ = b;
+    const check_step = b.step("check", "Run code quality checks");
+    const lizzy_step = addStep(b, .{
+        .command = &.{ "uv", "run", "lizard" },
+        .paths = &.{},
+    });
+    check_step.dependOn(lizzy_step);
+
+    const fmt = b.addFmt(.{
+        .check = true,
+        .paths = &.{"."},
+    });
+    check_step.dependOn(&fmt.step);
 }
