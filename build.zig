@@ -2,6 +2,22 @@ const std = @import("std");
 
 pub const Options = @import("build/Options.zig");
 
+fn resolveExe(b: *std.Build, step: *std.Build.Step, command: []const []const u8) ?[]const u8 {
+    if (command.len == 0) {
+        step.dependOn(&b.addFail("No command configured").step);
+        return null;
+    }
+
+    return b.findProgram(&.{command[0]}, &.{}) catch {
+        step.dependOn(&b.addFail(b.fmt(
+            "Could not resolve '{s}' in the system's path.",
+            .{command[0]},
+        )).step);
+
+        return null;
+    };
+}
+
 /// Adds a build step to run lizard with the given options.
 pub fn addStep(
     /// The build to attach the step to.
@@ -9,7 +25,11 @@ pub fn addStep(
     /// The options to configure the lizard step.
     options: Options,
 ) *std.Build.Step {
-    const exe = b.findProgram(&.{options.command[0]}, &.{}) catch options.command[0];
+    const step = b.step(
+        options.step_name,
+        options.step_description,
+    );
+    const exe = resolveExe(b, step, options.command) orelse return step;
 
     const lizard = b.addSystemCommand(&.{exe});
     if (options.command.len > 1)
@@ -51,12 +71,7 @@ pub fn addStep(
 
     lizard.addArgs(options.paths);
 
-    const step = b.step(
-        options.step_name,
-        options.step_description,
-    );
     step.dependOn(&lizard.step);
-
     return step;
 }
 
