@@ -1,0 +1,8 @@
+# [project]
+# name = "lizzy"
+# dynamic = ["version"]
+
+[dependency-groups]
+dev = [
+  "lizard>=1.22.1",
+]
