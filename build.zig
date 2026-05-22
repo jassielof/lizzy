@@ -21,9 +21,17 @@ pub fn addStep(
         b.fmt("{d}", .{options.length}),
         "--arguments",
         b.fmt("{d}", .{options.arguments}),
+        "--working_threads",
+        b.fmt("{d}", .{options.working_threads}),
     });
 
+    if (options.verbose) lizard.addArg("--verbose");
+
+    if (options.xml) lizard.addArg("--xml");
+    if (options.csv) lizard.addArg("--csv");
+    if (options.html) lizard.addArg("--html");
     if (options.modified_ccn) lizard.addArg("--modified");
+    if (options.checkstyle) lizard.addArg("--checkstyle");
 
     switch (options.warning_mode) {
         .summary => {},
@@ -66,6 +74,12 @@ fn optionsFromBuild(b: *std.Build, options: Options) Options {
         .length = b.option(usize, "length", "Function length warning threshold") orelse options.length,
         .arguments = b.option(usize, "arguments", "Argument count warning threshold") orelse options.arguments,
         .modified_ccn = b.option(bool, "modified", "Only analyze files changed from source control") orelse options.modified_ccn,
+        .verbose = b.option(bool, "verbose", "Enable verbose output") orelse options.verbose,
+        .xml = b.option(bool, "xml", "Generate XML output in cppncss style") orelse options.xml,
+        .html = b.option(bool, "html", "Generate HTML output") orelse options.html,
+        .csv = b.option(bool, "csv", "Generate CSV output") orelse options.csv,
+        .checkstyle = b.option(bool, "checkstyle", "Generate Checkstyle XML output") orelse options.checkstyle,
+        .working_threads = b.option(usize, "working-threads", "Number of working threads") orelse options.working_threads,
         .warning_mode = b.option(Options.WarningMode, "warning-mode", "Warning output mode") orelse options.warning_mode,
         .extensions = stringListOption(b, "extensions", "Comma-separated lizard extensions to enable", options.extensions),
         .paths = stringListOption(b, "paths", "Comma-separated paths to analyze", options.paths),

@@ -15,6 +15,18 @@ length: usize = 80,
 arguments: usize = 7,
 /// Use Lizard's modified cyclomatic complexity mode (`--modified`).
 modified_ccn: bool = true,
+/// Whether to enable verbose output (`--verbose`).
+verbose: bool = false,
+/// Whether to generate XML in cppncss style instead of the tabular output. Useful to generate report in Jenkins server.
+xml: bool = false,
+/// Whether to generate HTML output.
+html: bool = false,
+/// Whether to generate CSV output, as a transform of the default output.
+csv: bool = false,
+/// Whether to generate Checkstyle XML output for integration with Jenkins and other tools.
+checkstyle: bool = false,
+/// The number of working threads. Passed as `--working_threads`.
+working_threads: usize = 1,
 /// The warning style.
 warning_mode: WarningMode = .warnings_only,
 /// Lizard extensions to enable. Each item is emitted as a repeated `--extension` flag.
