@@ -8,12 +8,8 @@ pub fn addStep(
     b: *std.Build,
     /// The options to configure the lizard step.
     options: Options,
-) !*std.Build.Step {
-    if (options.command.len == 0) {
-        return error.InvalidCommand;
-    }
-
-    const exe = try b.findProgram(&.{options.command[0]}, &.{});
+) *std.Build.Step {
+    const exe = b.findProgram(&.{options.command[0]}, &.{}) catch options.command[0];
 
     const lizard = b.addSystemCommand(&.{exe});
     if (options.command.len > 1)
@@ -74,9 +70,21 @@ pub fn addStepWithBuildOptions(
     return addStep(b, optionsFromBuild(b, options));
 }
 
+fn commandOption(b: *std.Build, default: []const []const u8) []const []const u8 {
+    const path = b.option([]const u8, "lizard-path", "Executable name or path used to invoke lizard") orelse return default;
+    if (default.len == 0) return &.{path};
+
+    const command = b.allocator.alloc([]const u8, default.len) catch return default;
+    command[0] = path;
+    if (default.len > 1)
+        @memcpy(command[1..], default[1..]);
+
+    return command;
+}
+
 fn optionsFromBuild(b: *std.Build, options: Options) Options {
     return .{
-        .command = b.option([]const u8, "lizard-path", "Executable name or path used to invoke lizard") orelse options.command,
+        .command = commandOption(b, options.command),
         .languages = stringListOption(b, "languages", "Comma-separated list of languages to analyze", options.languages),
         .ccn = b.option(usize, "ccn", "Cyclomatic complexity warning threshold") orelse options.ccn,
         .length = b.option(usize, "length", "Function length warning threshold") orelse options.length,
@@ -114,7 +122,7 @@ fn stringListOption(
         if (c == ',') max_items += 1;
     }
 
-    const items = b.allocator.alloc([]const u8, max_items) catch @panic("OOM");
+    const items = b.allocator.alloc([]const u8, max_items) catch return default;
     var item_count: usize = 0;
     var iter = std.mem.splitScalar(u8, value, ',');
 
@@ -129,10 +137,10 @@ fn stringListOption(
     return items[0..item_count];
 }
 
-pub fn build(b: *std.Build) !void {
+pub fn build(b: *std.Build) void {
     const check_step = b.step("check", "Run code quality checks");
     const max_threads = std.Thread.getCpuCount() catch 1;
-    const lizzy_step = try addStep(b, .{
+    const lizzy_step = addStep(b, .{
         .command = &.{ "uvx", "lizard" },
         .paths = &.{},
         .ccn = 20,
