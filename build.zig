@@ -56,29 +56,29 @@ pub fn addStep(
 }
 
 /// Similar to `addStep`, but with options that can be overriden via build options from the CLI.
-pub fn addStepFromBuild(
+pub fn addStepWithBuildOptions(
     /// The build to attach the step to.
     b: *std.Build,
     /// The default options to use, which can be overridden via build options.
-    defaults: Options,
+    options: Options,
 ) *std.Build.Step {
-    return addStep(b, optionsFromBuild(b, defaults));
+    return addStep(b, optionsFromBuild(b, options));
 }
 
-fn optionsFromBuild(b: *std.Build, defaults: Options) Options {
+fn optionsFromBuild(b: *std.Build, options: Options) Options {
     return .{
-        .lizard_path = b.option([]const u8, "lizard-path", "Executable name or path used to invoke lizard") orelse defaults.lizard_path,
-        .ccn = b.option(usize, "ccn", "Cyclomatic complexity warning threshold") orelse defaults.ccn,
-        .length = b.option(usize, "length", "Function length warning threshold") orelse defaults.length,
-        .arguments = b.option(usize, "arguments", "Argument count warning threshold") orelse defaults.arguments,
-        .modified_ccn = b.option(bool, "modified", "Only analyze files changed from source control") orelse defaults.modified_ccn,
-        .warning_mode = b.option(Options.WarningMode, "warning-mode", "Warning output mode") orelse defaults.warning_mode,
-        .extensions = stringListOption(b, "extensions", "Comma-separated lizard extensions to enable", defaults.extensions),
-        .paths = stringListOption(b, "paths", "Comma-separated paths to analyze", defaults.paths),
-        .excluded_paths = stringListOption(b, "excluded-paths", "Comma-separated paths or patterns to exclude", defaults.excluded_paths),
-        .step_name = defaults.step_name,
-        .step_description = defaults.step_description,
-        .thresholds = stringListOption(b, "thresholds", "Comma-separated lizard threshold settings", defaults.thresholds),
+        .lizard_path = b.option([]const u8, "lizard-path", "Executable name or path used to invoke lizard") orelse options.lizard_path,
+        .ccn = b.option(usize, "ccn", "Cyclomatic complexity warning threshold") orelse options.ccn,
+        .length = b.option(usize, "length", "Function length warning threshold") orelse options.length,
+        .arguments = b.option(usize, "arguments", "Argument count warning threshold") orelse options.arguments,
+        .modified_ccn = b.option(bool, "modified", "Only analyze files changed from source control") orelse options.modified_ccn,
+        .warning_mode = b.option(Options.WarningMode, "warning-mode", "Warning output mode") orelse options.warning_mode,
+        .extensions = stringListOption(b, "extensions", "Comma-separated lizard extensions to enable", options.extensions),
+        .paths = stringListOption(b, "paths", "Comma-separated paths to analyze", options.paths),
+        .excluded_paths = stringListOption(b, "excluded-paths", "Comma-separated paths or patterns to exclude", options.excluded_paths),
+        .step_name = options.step_name,
+        .step_description = options.step_description,
+        .thresholds = stringListOption(b, "thresholds", "Comma-separated lizard threshold settings", options.thresholds),
     };
 }
 
