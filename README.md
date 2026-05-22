@@ -2,9 +2,11 @@
 
 Lizzy is a small wrapper around [Lizard](https://github.com/terryyin/lizard/), with sane defaults specialized for Zig projects.
 
-## Uage
+## Usage
 
 It's mainly intended to be used as a dependency for Zig projects, specifically for the build system script (`build.zig`).
+
+Fetch the package source from the releases, import it directly in your build script, and add the steps, just like in [this package build script](build.zig).
 
 ## Justification
 
