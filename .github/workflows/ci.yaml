@@ -21,6 +21,6 @@ jobs:
       - name: Set up Zig
         uses: jassielof/setup-zig@v1
       - name: Install UV
-        uses: astral-sh/setup-uv@v8.1.0
+        uses: astral-sh/setup-uv@v8.2.0
       - name: Run code quality checks
         run: zig build check --summary all
